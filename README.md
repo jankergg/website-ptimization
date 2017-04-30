@@ -1,6 +1,9 @@
 # 项目说明
 本项目通过使用`gulp`工具，结合相关插件完成对网页的自动优化，如内联必要的css/js文件，代码压缩等等，以达到优化页面加载的目的。
 
+## 最终优化结果
+
+[点击这里](https://jankergg.github.io/website-ptimization/dist/index.html)访问托管在github上的优化结果页面
 
 ## 项目运行方法
 
