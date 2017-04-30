@@ -471,30 +471,30 @@ var resizePizzas = function(size) {
 
     // 遍历披萨的元素并改变它们的宽度
     function changePizzaSizes(size) {
-      size = parseInt(size);
-      // OPT: 注释掉原来使用js遍历更改div宽度的做法，改用css控制
+        size = parseInt(size);
+        // OPT: 注释掉原来使用js遍历更改div宽度的做法，改用css控制
         // for (var i = 0; i < document.querySelectorAll(".randomPizzaContainer").length; i++) {
         //     var dx = determineDx(document.querySelectorAll(".randomPizzaContainer")[i], size);
         //     var newwidth = (document.querySelectorAll(".randomPizzaContainer")[i].offsetWidth + dx) + 'px';
         //     document.querySelectorAll(".randomPizzaContainer")[i].style.width = newwidth;
         // }
         var newClass = '';
-            switch (size) {
-                case 1:
-                    newClass = 'smallSize';
-                    break;
-                case 2:
-                    newClass = 'middleSize';
-                    break;
-                case 3:
-                    newClass = 'bigSize';
-                    break;
-                default:
-                    console.log("bug in sizeSwitcher");
-                    break;
-            }
-            //通过点击事件传值，判断并赋给pizzasDiv相应的class,实际起到改变pizzasDiv子元素样式的目的
-            pizzasDiv.className=newClass;
+        switch (size) {
+            case 1:
+                newClass = 'smallSize';
+                break;
+            case 2:
+                newClass = 'middleSize';
+                break;
+            case 3:
+                newClass = 'bigSize';
+                break;
+            default:
+                console.log("bug in sizeSwitcher");
+                break;
+        }
+        //通过点击事件传值，判断并赋给pizzasDiv相应的class,实际起到改变pizzasDiv子元素样式的目的
+        pizzasDiv.className = newClass;
 
     }
 
@@ -543,23 +543,25 @@ function logAverageFrame(times) { // times参数是updatePositions()由User Timi
 // https://www.igvita.com/slides/2012/devtools-tips-and-tricks/jank-demo.html
 
 // 基于滚动条位置移动背景中的披萨滑窗
-// 缓存mover
-var items = null,sct = 0;//OPT 1
+// 缓存items
+var items = null,
+    sct = 0; //scrollTop 默认为0
 function updatePositions() {
     frame++;
     window.performance.mark("mark_start_frame");
 
-    if(items){
-      sct = document.body.scrollTop;// OPT 防止首次渲染的强制重绘
+    // OPT 防止首次渲染的强制重绘
+    if (items) {
+        sct = document.body.scrollTop;
     }
 
-    // 如果mover还没有被缓存过，则缓存结果
+    // 如果items还没有被缓存过，则缓存结果
     if (!items) { // OPT 1
         items = document.querySelectorAll('.mover');
     }
     for (var i = 0; i < items.length; i++) {
         var phase = Math.sin((sct / 1250) + (i % 5));
-        items[i].style.transform = 'translateX('+ 100 * phase + 'px)';//OPT3 使用translate
+        items[i].style.transform = 'translateX(' + 100 * phase + 'px)'; //OPT3 使用translate
     }
 
     // 再次使用User Timing API。这很值得学习
@@ -580,12 +582,11 @@ window.addEventListener('scroll', updatePositions);
 document.addEventListener('DOMContentLoaded', function() {
     var cols = 8;
     var s = 256;
-    var mpizza = document.querySelector("#movingPizzas1");
     var imgs = [];
-    //OPT 5 :100个太多，30个足够了
+    //OPT 5 :100个太多，50个足够了
     for (var i = 0; i < 50; i++) {
-        imgs.push("<img src='images/pizza.png' class='mover' style='height:100px;width:73.333px;left:"+ (i % cols) * s +"px;top:"+ (Math.floor(i / cols) * s) +"px;'/>")
+        imgs.push("<img src='images/pizza.png' class='mover' style='height:100px;width:73.333px;left:" + (i % cols) * s + "px;top:" + (Math.floor(i / cols) * s) + "px;'/>")
     }
-    mpizza.innerHTML = imgs.join('');
+    document.querySelector("#movingPizzas1").innerHTML = imgs.join('');
     updatePositions();
 });
