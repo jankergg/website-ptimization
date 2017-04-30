@@ -1,70 +1,60 @@
-## 网站性能优化项目
+# 项目说明
+本项目通过使用`gulp`工具，结合相关插件完成对网页的自动优化，如内联必要的css/js文件，代码压缩等等，以达到优化页面加载的目的。
 
-你要做的是尽可能优化这个在线项目的速度。注意，请应用你之前在[网站性能优化课程](https://cn.udacity.com/course/website-performance-optimization--ud884/)中学习的技术来优化关键渲染路径并使这个页面尽可能快的渲染。
 
-开始前，请导出这个代码库并检查代码。
+## 项目运行方法
 
-### 指南
+- 克隆本项目，进入根目录下，运行 `npm install`
+- 运行打包命令 `npm run build` 生成打包后的代码(主要是index.html)到 `dist`目录
+- 运行命令 `npm start` 开启本地开发环境，在浏览器输入 `http://127.0.0.1:8000`查看效果
+- 进行`pageSpeed`测试需要用到 `ngrok` 具体使用方法可以参考[这里](https://dashboard.ngrok.com/get-started)
 
-####Part 1: 优化 index.html 的 PageSpeed Insights 得分
+## 首页index.html 优化说明
 
-以下是几个帮助你顺利开始本项目的提示：
+- 下载谷歌字体css文件到本地，并使用`gulp-inline-source`插件内联进index.html
+- `style.css`: 使用`gulp-inline-source`插件内联进index.html
+- `print.css`: 添加属性 `media="print"` 防止阻塞页面加载
+- `analytics.js`:添加`async`属性 防止阻塞页面加载
+- `perfmatters.js`:使用`gulp-inline-source`插件内联进index.html
+- 使用`gulp-htmlmin`插件进一步压缩html体积
+- 最后`index.html`会输出到`dist`目录下
+- 针对外部资源(font/image），在head区添加`dns-prefetch`,希望能提高资源加载速度
+- 说明：在`link/script`标签中添加`inline`属性可以让`gulp-inline-source`插件识别出哪些资源需要被内联进html中。
 
-1. 将这个代码库导出
-2. 你可以运行一个本地服务器，以便在你的手机上检查这个站点
+## views/js/main.js 优化说明
 
-```bash
-  $> cd /你的工程目录
-  $> python -m SimpleHTTPServer 8080
+### 滚动性能优化
+`updatePositions`方法中的一些做法导致了强制重绘，严重影响性能，主要采取以下几个方法：
+- 缓存`items`变量到方法外部，由于`items`元素的数量并没有变化，因此不需要每次都重新查找,将`scrollTop`值放进变量`sct`并默认为0，这次能减少首次渲染时的强制重绘。
+- `items[i].style.left` 改为 `items[i].style.transform` 提高动画性能
+- `DOMContentLoaded`事件中添加图片的做法会导致大量的浏览器布局重绘，并且一次性添加200个图片数量太多，减少到50个比较合适。优化做法是：以字符串形式将图片保存到数组`imgs`中，最后一次性添加到页面中，采用 `document.querySelector("#movingPizzas1").innerHTML = imgs.join('')`
+
+### 调整pizza尺寸 优化说明
+- 将多次复用的 `randomPizzas`元素缓存到变量`pizzasDiv`中去。
+- 舍弃`determineDx`方法，直接在 `changePizzaSizes`方法中,通过给 `pizzasDiv`设置不同的样式名，达到控制`randomPizzaContainer`宽度百分比的目的。为达成这个目的，需要在`style.css`中新增样式：
 ```
-
-1. 打开浏览器，访问 localhost:8080
-2. 下载 [ngrok](https://ngrok.com/) 并将其安装在你的工程根目录下，让你的本地服务器能够被远程访问。
-
-``` bash
-  $> cd /你的工程目录
-  $> ./ngrok http 8080
+.smallSize .randomPizzaContainer{
+  width:25%;
+}
+.middleSize .randomPizzaContainer{
+  width:33.33%;
+}
+.bigSize .randomPizzaContainer{
+  width:50%;
+}
 ```
-
-1. 复制ngrok提供给你的公共URL，然后尝试通过PageSpeed Insights访问它吧！可选阅读：[更多关于整合ngrok、Grunt和PageSpeed的信息](http://www.jamescryer.com/2014/06/12/grunt-pagespeed-and-ngrok-locally-testing/)。
-
-接下来，你可以一遍又一遍的进行配置、优化、检测了！祝你好运！
-
-----
-
-####Part 2: 优化 pizza.html 的 FPS（每秒帧数）
-
-你需要编辑 views/js/main.js 来优化 views/pizza.html，直到这个网页的 FPS 达到或超过 60fps。你会在 main.js 中找到一些对此有帮助的注释。
-
-你可以在 Chrome 开发者工具帮助中找到关于 FPS 计数器和 HUD 显示的有用信息。[Chrome 开发者工具帮助](https://developer.chrome.com/devtools/docs/tips-and-tricks).
-
-### 一些关于优化的提示与诀窍
-* [web 性能优化](https://developers.google.com/web/fundamentals/performance/ "web 性能")
-* [分析关键渲染路径](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/analyzing-crp.html "分析关键渲染路径")
-* [优化关键渲染路径](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/optimizing-critical-rendering-path.html "优化关键渲染路径！")
-* [避免 CSS 渲染阻塞](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/render-blocking-css.html "css渲染阻塞")
-* [优化 JavaScript](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/adding-interactivity-with-javascript.html "javascript")
-* [通过 Navigation Timing 进行检测](https://developers.google.com/web/fundamentals/performance/critical-rendering-path/measure-crp.html "nav timing api")。在前两个课程中我们没有学习 Navigation Timing API，但它对于自动分析页面性能是一个非常有用的工具。我强烈推荐你阅读它。
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/eliminate-downloads.html">下载量越少，性能越好</a>
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/optimize-encoding-and-transfer.html">减少文本的大小</a>
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/image-optimization.html">优化图片</a>
-* <a href="https://developers.google.com/web/fundamentals/performance/optimizing-content-efficiency/http-caching.html">HTTP缓存</a>
-
-### 使用 Bootstrap 并定制样式
-这个项目基于 Twitter 旗下的 <a href="http://getbootstrap.com/">Bootstrap框架</a> 制作。所有的定制样式都在项目代码库的 `dist/css/portfolio.css` 中。
-
-* <a href="http://getbootstrap.com/css/">Bootstrap CSS</a>
-* <a href="http://getbootstrap.com/components/">Bootstrap组件</a>
-
-
-1. Start by [downloading ngrok](https://ngrok.com/download).
-2. Install your authtoken
-````
-./ngrok authtoken 3jbUco5CiZCVD87TR782N_7e7s4qARTUcLPz1dzHXnz
-````
-3. Create your first secure tunnel
-````
-./ngrok http 8000
-````
-Open the web interface at http://localhost:4040 to inspect and replay requests
-
+- 页面初始化过程中，通过`for`循环来添加pizza的做法导致严重的渲染性能问题（这与添加maker时遇到的问题一样）原代码：
+```
+for (var i = 2; i < 100; i++) {
+  var pizzasDiv = document.getElementById("randomPizzas");
+  pizzasDiv.appendChild(pizzaElementGenerator(i));
+}
+```
+`pizzasDiv`变量已经提取出来放到外面，为了减少dom操作次数，这里采用的做法是通过`document.createDocumentFragment()`创建一个文档片段，将生成的pizza元素放入其中，最后再一次性添加到页面中：
+```
+var randompizzasFrag = document.createDocumentFragment();
+for (var i = 2; i < 100; i++) {
+    randompizzasFrag.appendChild(pizzaElementGenerator(i))
+}
+pizzasDiv.appendChild(randompizzasFrag);
+```
