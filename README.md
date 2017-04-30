@@ -17,6 +17,7 @@
 - `analytics.js`:添加`async`属性 防止阻塞页面加载
 - `perfmatters.js`:使用`gulp-inline-source`插件内联进index.html
 - 部分图片（小于5kb）直接内联进html
+- `pizzeria.jpg`图片太大，不适合直接用在列表页，因此需要专门为列表页制作一个缩略图：`pizzeria-min.jpg`存放在`img`目录下
 - 使用`gulp-htmlmin`插件进一步压缩html体积
 - 使用`gulp-imagemin`压缩图片并输出到`dist`目录下
 - 最后`index.html`会输出到`dist`目录下
