@@ -16,7 +16,9 @@
 - `print.css`: 添加属性 `media="print"` 防止阻塞页面加载
 - `analytics.js`:添加`async`属性 防止阻塞页面加载
 - `perfmatters.js`:使用`gulp-inline-source`插件内联进index.html
+- 部分图片（小于5kb）直接内联进html
 - 使用`gulp-htmlmin`插件进一步压缩html体积
+- 使用`gulp-imagemin`压缩图片并输出到`dist`目录下
 - 最后`index.html`会输出到`dist`目录下
 - 针对外部资源(font/image），在head区添加`dns-prefetch`,希望能提高资源加载速度
 - 说明：在`link/script`标签中添加`inline`属性可以让`gulp-inline-source`插件识别出哪些资源需要被内联进html中。
