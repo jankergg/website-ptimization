@@ -427,13 +427,13 @@ var resizePizzas = function(size) {
     function changeSliderLabel(size) {
         switch (size) {
             case "1":
-                document.querySelector("#pizzaSize").innerHTML = "Small";
+                document.getElementById("pizzaSize").innerHTML = "Small";
                 return;
             case "2":
-                document.querySelector("#pizzaSize").innerHTML = "Medium";
+                document.getElementById("pizzaSize").innerHTML = "Medium";
                 return;
             case "3":
-                document.querySelector("#pizzaSize").innerHTML = "Large";
+                document.getElementById("pizzaSize").innerHTML = "Large";
                 return;
             default:
                 console.log("bug in changeSliderLabel");
@@ -545,23 +545,26 @@ function logAverageFrame(times) { // times参数是updatePositions()由User Timi
 // 基于滚动条位置移动背景中的披萨滑窗
 // 缓存items
 var items = null,
-    sct = 0; //scrollTop 默认为0
+    phase = getPhase(0);
+
 function updatePositions() {
     frame++;
     window.performance.mark("mark_start_frame");
 
     // OPT 防止首次渲染的强制重绘
+    // 把phase的计算从主循环中提出来，减少主循环计算量
     if (items) {
-        sct = document.body.scrollTop;
+        phase = getPhase(document.body.scrollTop);
     }
 
     // 如果items还没有被缓存过，则缓存结果
     if (!items) { // OPT 1
-        items = document.querySelectorAll('.mover');
+        items = document.getElementsByClassName('mover');
     }
-    for (var i = 0; i < items.length; i++) {
-        var phase = Math.sin((sct / 1250) + (i % 5));
-        items[i].style.transform = 'translateX(' + 100 * phase + 'px)'; //OPT3 使用translate
+
+    for (var i = 0, len = items.length; i < len; i++) {
+        // 使用translate 提高动画性能
+        items[i].style.transform = 'translateX(' + phase[i % 5] + 'px)';
     }
 
     // 再次使用User Timing API。这很值得学习
@@ -574,19 +577,41 @@ function updatePositions() {
     }
 }
 
+function getPhase(scrollTop) {
+    var phase = [];
+    for (var i = 0; i < 5; i++) {
+        phase[i] = Math.sin((scrollTop / 1250) + i) * 100;
+    };
+
+    return phase;
+}
+
+//使用requestAnimationFrame来提高滚动性能
+function updateOnScroll() {
+    requestAnimationFrame(updatePositions);
+}
 // 在页面滚动时运行updatePositions函数
-window.addEventListener('scroll', updatePositions);
+window.addEventListener('scroll', updateOnScroll);
 
 // 当页面加载时生成披萨滑窗
 // OPT 4 优化图片生成方法
 document.addEventListener('DOMContentLoaded', function() {
-    var cols = 8;
+    var wHeight = window.innerHeight;
+    var wWidth = window.innerWidth;
+
+    // 单个pizza所占用的宽度、高度空间
     var s = 256;
+
+    //根据当前窗口大小 计算出所需要pizza的个数 行数和列数
+    var cols = Math.ceil(wWidth / s);
+    var rows = Math.ceil(wHeight / s);
+    var pizzas = cols * rows;
     var imgs = [];
-    //OPT 5 :100个太多，50个足够了
-    for (var i = 0; i < 50; i++) {
+
+    for (var i = 0; i < pizzas; i++) {
         imgs.push("<img src='images/pizza.png' class='mover' style='height:100px;width:73.333px;left:" + (i % cols) * s + "px;top:" + (Math.floor(i / cols) * s) + "px;'/>")
     }
-    document.querySelector("#movingPizzas1").innerHTML = imgs.join('');
+
+    document.getElementById("movingPizzas1").innerHTML = imgs.join('');
     updatePositions();
 });

@@ -1,6 +1,6 @@
 var StaticServer = require('static-server');
 var server = new StaticServer({
-  rootPath: './dist',            // required, the root of the server file tree
+  rootPath: './src',            // required, the root of the server file tree
   name: 'act-http-server',   // optional, will set "X-Powered-by" HTTP header
   port: 8000,               // optional, defaults to a random port
   host: '127.0.0.1',       // optional, defaults to any interface

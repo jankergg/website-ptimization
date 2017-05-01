@@ -33,7 +33,13 @@
 `updatePositions`方法中的一些做法导致了强制重绘，严重影响性能，主要采取以下几个方法：
 - 缓存`items`变量到方法外部，由于`items`元素的数量并没有变化，因此不需要每次都重新查找,将`scrollTop`值放进变量`sct`并默认为0，这次能减少首次渲染时的强制重绘。
 - `items[i].style.left` 改为 `items[i].style.transform` 提高动画性能
-- `DOMContentLoaded`事件中添加图片的做法会导致大量的浏览器布局重绘，并且一次性添加200个图片数量太多，减少到50个比较合适。优化做法是：以字符串形式将图片保存到数组`imgs`中，最后一次性添加到页面中，采用 `document.querySelector("#movingPizzas1").innerHTML = imgs.join('')`
+- `DOMContentLoade`事件中添加图片的做法会导致大量的浏览器布局重绘，并且一次性添加200个图片数量太多,会造成严重的性能问题。优化做法是：根据当前窗口大小动态计算出所需要的pizza数量，以字符串形式将图片保存到数组`imgs`中，最后一次性添加到页面中
+
+#### ReSubmit 改进
+- 使用效率更高的`document.getElementById`替换选择效率较低的`document.querySelector`
+- 使用效率更高的`document.getElementsByClassName`替换选择效率较低的`document.querySelectorAll`
+- 在`scroll`滚动事件中，使用`requestAnimationFrame`来提高滚动性能，使动画更流畅
+- `updatePositions`方法中，将`phase`的计算从主循环中提出出来，减少主循环计算量
 
 ### 调整pizza尺寸 优化说明
 - 将多次复用的 `randomPizzas`元素缓存到变量`pizzasDiv`中去。
